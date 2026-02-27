@@ -2,3 +2,5 @@ node_modules
 .next
 .env.local
 starter
+.env
+client_secret_1034907743187-ge32he3tgnrnpjvgdfm4mal8v45lur55.apps.googleusercontent.com.json
