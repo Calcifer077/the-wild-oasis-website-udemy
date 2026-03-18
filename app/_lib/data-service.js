@@ -175,7 +175,7 @@ export async function createGuest(newGuest) {
   const { data, error } = await supabase.from("guests").insert([newGuest]);
 
   if (error) {
-    console.error(error);
+    console.error("error create guest", error);
     throw new Error("Guest could not be created");
   }
 

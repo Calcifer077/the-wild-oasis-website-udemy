@@ -6,6 +6,7 @@
 import { revalidatePath } from "next/cache";
 import { auth, signIn, signOut } from "./auth";
 import { supabase } from "./supabase";
+import { getBookings } from "./data-service";
 
 export async function updateGuest(formData) {
   const session = await auth();
@@ -34,10 +35,33 @@ export async function updateGuest(formData) {
     throw new Error("Guest could not be updated.");
   }
 
-  // The data will not be immediately available on the client side after this action is performed, because of the caching mechanism of next.js. 
+  // The data will not be immediately available on the client side after this action is performed, because of the caching mechanism of next.js.
   // It will show stale data from the cache. One can refetch by doing a hard reload, but that is not a good user experience. So we can use 'revalidatePath' to revalidate the cache for a specific path after the action is performed, so that the next time the user visits that path, they will see the updated data.
   // If you were to specify ('/account') only it will revalidate the cache for the entire '/account' section, which means that all pages under '/account' will show the updated data, but if you specify the exact path ('/account/profile') only that page will show the updated data, and other pages under '/account' will still show the stale data until they are revalidated.
   revalidatePath("/account/profile");
+}
+
+export async function deleteReservation(bookingId) {
+  // Check if the user is authenticated
+  const session = await auth();
+
+  if (!session)
+    throw new Error("You must be logged in to perform this action.");
+
+  const guestBookings = await getBookings(session.user.guestId);
+  const guestBookingIds = guestBookings.map((booking) => booking.id);
+
+  if (!guestBookingIds.includes(bookingId))
+    throw new Error("You are not allowed to delete this booking");
+
+  const { error } = await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", bookingId);
+
+  if (error) throw new Error("Reservation could not be deleted.");
+
+  revalidatePath("/account/reservations");
 }
 
 export async function signInAction() {
