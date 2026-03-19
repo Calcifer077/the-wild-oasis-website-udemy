@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { updateGuest } from "../_lib/actions";
-import { useFormStatus } from "react-dom";
+import SubmitButton from "./SubmitButton";
 
 // This component is a client component which is trying to render a server component, which will create a conflict.
 
@@ -70,13 +70,14 @@ function UpdateProfileForm({ guest, children }) {
         </div>
 
         <div className="flex justify-end items-center gap-6">
-          <Button />
+          <SubmitButton pendingLabel="Updating">Update Profile</SubmitButton>
         </div>
       </form>
     </div>
   );
 }
 
+/*
 function Button() {
   // 'useFormStatus' is a hook by react, which basically tells us about the status of the form.
   // One thing to make sure that this hook can only be used inside the component which is being rendered inside a form not for the form itself.
@@ -93,5 +94,6 @@ function Button() {
     </button>
   );
 }
+*/
 
 export default UpdateProfileForm;
