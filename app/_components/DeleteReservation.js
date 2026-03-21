@@ -5,7 +5,7 @@ import { deleteReservation } from "../_lib/actions";
 import { useTransition } from "react";
 import SpinnerMini from "./SpinnerMini";
 
-function DeleteReservation({ bookingId }) {
+function DeleteReservation({ bookingId, onDelete }) {
   // 'useTransition' allows us to mark certain state updates as non urgent. They happen in the background without blocking the UI in case of heavy processing.
   // Gives two values:
   // 1. isPending: true when the transition is in progress, false otherwise.
@@ -15,7 +15,7 @@ function DeleteReservation({ bookingId }) {
   function handleDelete() {
     if (confirm("Are you sure you want to delete this reservation?")) {
       startTransition(() => {
-        deleteReservation(bookingId);
+        onDelete(bookingId);
       });
     }
   }
