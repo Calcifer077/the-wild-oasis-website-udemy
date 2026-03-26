@@ -37,7 +37,6 @@ const authConfig = {
         // If everything went well, return true.
         return true;
       } catch (err) {
-        console.log("something", err);
         return false;
       }
     },

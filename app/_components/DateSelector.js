@@ -1,6 +1,11 @@
 "use client";
 
-import { differenceInDays, isPast, isWithinInterval } from "date-fns";
+import {
+  differenceInDays,
+  isPast,
+  isSameDay,
+  isWithinInterval,
+} from "date-fns";
 import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -27,8 +32,6 @@ function DateSelector({ settings, bookedDates, cabin }) {
 
   // SETTINGS
   const { minBookingLength, maxBookingLength } = settings;
-
-  console.log(bookedDates);
 
   const handleSelect = (selected) => {
     if (selected === undefined) return;

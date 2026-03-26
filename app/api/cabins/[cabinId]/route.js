@@ -15,8 +15,6 @@ export async function GET(request, params) {
 
     return Response.json({ cabin, bookedDates });
   } catch (error) {
-    // console.log(error);
-
     return Response.json({ error: "Failed to fetch cabin data" });
   }
 }

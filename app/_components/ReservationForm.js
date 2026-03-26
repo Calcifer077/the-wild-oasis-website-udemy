@@ -6,9 +6,8 @@ import { createBooking } from "../_lib/actions";
 import SubmitButton from "./SubmitButton";
 
 function ReservationForm({ cabin, user }) {
-  // CHANGE
-  const { range } = useReservation();
-  const { maxCapacity, regularPrice, discount, id } = cabin;
+  const { range, resetRange } = useReservation();
+  const { maxCapacity, regularPrice, discount, id, name } = cabin;
 
   const startDate = range?.from;
   const endDate = range?.to;
@@ -26,6 +25,42 @@ function ReservationForm({ cabin, user }) {
 
   // 'createBookingWithData' will be prepopulated with bookingData.
   const createBookingWithData = createBooking.bind(null, bookingData);
+
+  async function handleSubmit(formData) {
+    await createBookingWithData(formData);
+
+    resetRange();
+  }
+
+  async function handleSubmitWithPayment() {
+    const form = document.querySelector("form");
+
+    const formData = new FormData();
+
+    if (!form.elements.numGuests.value) return;
+
+    formData.append("numGuests", form.elements.numGuests.value);
+    formData.append("observations", form.elements.observations.value);
+
+    const booking = await createBookingWithData(formData);
+
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bookingId: booking.id,
+        cabinPrice,
+        numNights,
+        cabinName: name,
+      }),
+    });
+
+    const { url } = await res.json();
+
+    window.location.href = url;
+
+    resetRange();
+  }
 
   return (
     <div className="scale-[1.01]">
@@ -45,10 +80,7 @@ function ReservationForm({ cabin, user }) {
       </div>
 
       <form
-        action={async (formData) => {
-          await createBookingWithData(formData);
-          resetRange();
-        }}
+        action={handleSubmit}
         className="bg-primary-900 py-10 px-16 text-lg flex gap-5 flex-col"
       >
         <div className="space-y-2">
@@ -88,7 +120,22 @@ function ReservationForm({ cabin, user }) {
               Start by selecting dates
             </p>
           ) : (
-            <SubmitButton pendingLabel={"Reserving"}>Reserve Now</SubmitButton>
+            <>
+              {/* The default action will be called on submission using this */}
+              <SubmitButton pendingLabel={"Reserving"}>
+                Pay Later (On premise)
+              </SubmitButton>
+
+              <SubmitButton
+                // By default button is of 'type='submit''. If we were to follow the default way both hanlders will be called on clicking any button. But we don't want that so that's why we made its 'type='button'', so that it will only be called when this button is clicked.
+
+                type="button"
+                onClick={handleSubmitWithPayment}
+                pendingLabel={"Reserving"}
+              >
+                Reserve Now (Pay Online)
+              </SubmitButton>
+            </>
           )}
         </div>
       </form>

@@ -9,6 +9,10 @@ import { supabase } from "./supabase";
 import { getBookings } from "./data-service";
 import { redirect } from "next/navigation";
 
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 export async function updateGuest(formData) {
   const session = await auth();
 
@@ -59,12 +63,21 @@ export async function createBooking(bookingData, formData) {
     status: "unconfirmed",
   };
 
-  const { error } = await supabase.from("bookings").insert([newBooking]);
+  if (!newBooking.numGuests || !newBooking.startDate || !newBooking.endDate)
+    throw new Error("Please provide all required values.");
+
+  const { data, error } = await supabase
+    .from("bookings")
+    .insert([newBooking])
+    .select()
+    .single();
 
   if (error) throw new Error("Booking could not be created");
 
-  revalidatePath("/cabins/${bookingData.cabinId}");
-  redirect("/cabins/thankyou");
+  // revalidatePath("/cabins/${bookingData.cabinId}");
+  // redirect("/cabins/thankyou");
+
+  return data;
 }
 
 export async function deleteBooking(bookingId) {
@@ -79,6 +92,31 @@ export async function deleteBooking(bookingId) {
 
   if (!guestBookingIds.includes(bookingId))
     throw new Error("You are not allowed to delete this booking");
+
+  const { data: booking, error: fetchError } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("id", bookingId)
+    .single();
+
+  if (fetchError || !booking) {
+    throw new Error("Booking not found.");
+  }
+
+  if (!booking.isPaid || !booking.stripePaymentIntentId) {
+    await supabase.from("bookings").delete().eq("id", bookingId);
+
+    console.log("No payment for this booking");
+    return;
+  }
+
+  try {
+    const refund = await stripe.refunds.create({
+      payment_intent: booking.stripePaymentIntentId,
+    });
+  } catch (err) {
+    throw new Error("Refund failed");
+  }
 
   const { error } = await supabase
     .from("bookings")
