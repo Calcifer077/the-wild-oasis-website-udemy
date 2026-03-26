@@ -13,6 +13,7 @@ Built as the client-side companion to the internal hotel management dashboard (o
 - **Auth.js / NextAuth v5** – Google OAuth login
 - **Tailwind CSS** + modern utility-first styling
 - **Server Actions** & **Server Components**
+- **Stripe**
 
 ## Key Features & Learning Highlights
 
@@ -29,6 +30,7 @@ Built as the client-side companion to the internal hotel management dashboard (o
 - Protected routes (account, reservations)
 - Dynamic cabin filtering & date selection
 - Form validation & nice user feedback
+- Accepting and refunding payments using `Stripe`
 
 ## Getting Started
 
@@ -55,9 +57,14 @@ AUTH_SECRET=generate-a-strong-random-secret   # openssl rand -base64 32
 # Optional – helps in dev & avoids warning
 NEXTAUTH_URL=http://localhost:3000
 # In production → https://your-domain.com
+
+# Stripe
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
 ```
 
 > **Tip**: Use `openssl rand -base64 32` or https://generate-secret.vercel.app/32 to create a secure `AUTH_SECRET`.
+> **Tip**: Use stripe SDK in development for testing
 
 ### 3. Installation & Development
 
@@ -86,7 +93,9 @@ app/
 ├── account/             → protected area (profile, reservations, edit booking)
 ├── cabins/              → cabin list + detail page
 ├── api/auth/[...nextauth]/ → NextAuth route handler
-└── ... (other pages: about, login, etc.)
+├── api/create-checkout-session/route → Stripe accpeting payments
+├── api/webhook/route → Stripe webhook
+└── ... (other pages: about, login, success, cancel etc.)
 ```
 
 ## Acknowledgments
