@@ -1,6 +1,6 @@
 # The Wild Oasis – Customer Website
 
-A beautiful, modern **customer-facing website** for **The Wild Oasis** luxury cabin resort.  
+A beautiful, modern **customer-facing website** for [**The Wild Oasis**](https://github.com/Calcifer077/the-wild-oasis) luxury cabin resort.  
 Users can browse cabins, check availability, make reservations, view & manage their bookings, and update their guest profile — all with a smooth, optimistic UI.
 
 Built as the client-side companion to the internal hotel management dashboard (often called "The Wild Oasis" admin app in Jonas Schmedtmann's course).
